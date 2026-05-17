@@ -1,0 +1,28 @@
+{
+  "name": "@spark/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=.env.local --import tsx --watch src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env.local dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^1.0.0",
+    "@hono/node-server": "^1.13.0",
+    "@mastra/core": "latest",
+    "@mastra/hono": "latest",
+    "@spark/types": "workspace:*",
+    "@trpc/server": "^11.0.0",
+    "ai": "^6.0.184",
+    "hono": "^4.6.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
