@@ -24,6 +24,8 @@ export function useSparkChat({ threadId, agentId }: UseSparkChatOptions) {
             threadId: id ?? threadId ?? undefined,
             messages,
             agentId,
+            /** 当前会话 Agent，用于服务端判断是否展示 agent_switch 卡片 */
+            previousAgentId: agentId,
           },
         }),
       }),

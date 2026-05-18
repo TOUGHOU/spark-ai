@@ -11,6 +11,7 @@ import {
 import type { Context } from 'hono'
 import { agentRegistry } from '../registry/agent-registry.js'
 import { createAgentRouter } from '../registry/agent-router.js'
+import { buildAgentSwitchCard, writeSparkCard } from '../lib/spark-stream.js'
 
 function extractTextFromMessage(message: UIMessage): string {
   return message.parts
@@ -27,11 +28,13 @@ export async function handleChatRequest(c: Context) {
       id: chatId,
       threadId,
       agentId: forcedAgentId,
+      previousAgentId,
     } = body as {
       messages?: UIMessage[]
       id?: string
       threadId?: string
       agentId?: string
+      previousAgentId?: string
     }
 
     if (!messages?.length) {
@@ -46,10 +49,13 @@ export async function handleChatRequest(c: Context) {
     }
 
     let agentId = forcedAgentId
+    let routeReason = forcedAgentId ? 'user-selected' : undefined
+
     if (!agentId) {
       const agentRouter = createAgentRouter(agentRegistry)
       const route = await agentRouter.route(messageText)
       agentId = route.agentId
+      routeReason = route.reason
     }
 
     const agent = agentRegistry.getMastraAgent(agentId)
@@ -58,6 +64,13 @@ export async function handleChatRequest(c: Context) {
     }
 
     const resolvedThreadId = threadId || chatId || crypto.randomUUID()
+    const toConfig = agentRegistry.getConfig(agentId)
+    const fromConfig = previousAgentId
+      ? agentRegistry.getConfig(previousAgentId)
+      : undefined
+
+    const shouldShowAgentSwitch =
+      !previousAgentId || previousAgentId !== agentId
 
     console.log(`[Chat] agent=${agentId} thread=${resolvedThreadId}`)
     console.log(`[Chat] message=${messageText.slice(0, 120)}`)
@@ -65,8 +78,20 @@ export async function handleChatRequest(c: Context) {
     const stream = createUIMessageStream({
       originalMessages: messages,
       execute: async ({ writer }) => {
-        const textId = crypto.randomUUID()
+        if (shouldShowAgentSwitch) {
+          writeSparkCard(
+            writer as { write: (part: Record<string, unknown>) => void },
+            buildAgentSwitchCard({
+              toAgentId: agentId,
+              toAgentName: toConfig?.name,
+              fromAgentId: previousAgentId,
+              fromAgentName: fromConfig?.name,
+              reason: routeReason,
+            }),
+          )
+        }
 
+        const textId = crypto.randomUUID()
         writer.write({ type: 'text-start', id: textId })
 
         const result = await agent.stream(messageText)
