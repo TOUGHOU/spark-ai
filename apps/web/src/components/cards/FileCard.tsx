@@ -1,66 +1,70 @@
-import { FileText, Download, File } from 'lucide-react'
+import { Download, File, FileText } from 'lucide-react'
 import type { FileContent } from '@spark/types'
+import { buttonVariants } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+} from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 interface FileCardProps {
   content: FileContent
 }
 
-export function FileCard({ content }: FileCardProps) {
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return ''
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  }
+function formatFileSize(bytes?: number) {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
-  const isImage = content.fileType?.startsWith('image/') || 
+export function FileCard({ content }: FileCardProps) {
+  const isImage =
+    content.fileType?.startsWith('image/') ||
     /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(content.fileName)
 
   return (
-    <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
-      <div className="flex items-center gap-3">
-        {/* Icon */}
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-          isImage ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'
-        }`}>
-          {isImage ? <FileText size={20} /> : <File size={20} />}
+    <Card className="gap-0 py-0 ring-1 ring-border" size="sm">
+      <CardContent className="flex items-center gap-3 p-3">
+        <div
+          className={cn(
+            'flex size-10 shrink-0 items-center justify-center rounded-lg',
+            isImage
+              ? 'bg-primary/15 text-primary'
+              : 'bg-muted text-muted-foreground',
+          )}
+        >
+          {isImage ? <FileText className="size-5" /> : <File className="size-5" />}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">
-            {content.fileName}
-          </p>
-          {content.fileSize && (
-            <p className="text-xs text-gray-400">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{content.fileName}</p>
+          {content.fileSize != null && (
+            <p className="text-muted-foreground text-xs">
               {formatFileSize(content.fileSize)}
             </p>
           )}
         </div>
 
-        {/* Actions */}
         {content.url && (
           <a
-            href={content.url}
+            className={cn(buttonVariants({ size: 'icon-sm', variant: 'ghost' }))}
             download={content.fileName}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            href={content.url}
             title="下载文件"
           >
-            <Download size={16} className="text-gray-400" />
+            <Download className="size-4" />
           </a>
         )}
-      </div>
+      </CardContent>
 
-      {/* Preview for images */}
       {isImage && content.url && (
-        <div className="mt-3">
-          <img 
-            src={content.url} 
-            alt={content.fileName}
-            className="max-w-full rounded-lg" 
-          />
-        </div>
+        <img
+          alt={content.fileName}
+          className="max-w-full border-t"
+          src={content.url}
+        />
       )}
-    </div>
+    </Card>
   )
 }

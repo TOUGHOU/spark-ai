@@ -1,12 +1,30 @@
-import { AlertCircle, Loader, Send, Square } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { AlertCircle } from 'lucide-react'
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from '@/components/ai-elements/conversation'
+import { Loader } from '@/components/ai-elements/loader'
+import { Message, MessageContent } from '@/components/ai-elements/message'
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputButton,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  type PromptInputMessage,
+} from '@/components/ai-elements/prompt-input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { useSparkChat } from '../hooks/useSparkChat'
 import { getMessageText, uiMessageToSparkMessage } from '../lib/uiMessageAdapter'
 import { selectCurrentThread, useChatStore } from '../stores/chatStore'
 import { MessageCard } from './cards'
 
 export function ChatWindow() {
-  const [input, setInput] = useState('')
   const currentThread = useChatStore(selectCurrentThread)
   const updateThreadTitle = useChatStore(s => s.updateThreadTitle)
   const agents = useChatStore(s => s.agents)
@@ -36,129 +54,116 @@ export function ChatWindow() {
     }
   }, [messages, threadId, currentThread, updateThreadTitle])
 
-  const handleSend = () => {
-    const text = input.trim()
-    if (!text || isBusy) return
-
-    sendMessage({ text })
-    setInput('')
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
+  const handleSubmit = ({ text }: PromptInputMessage) => {
+    const trimmed = text.trim()
+    if (!trimmed || isBusy) return
+    sendMessage({ text: trimmed })
   }
 
   const handleAction = (value: string) => {
     console.log('Action triggered:', value)
   }
 
+  const activeAgent = agentId ? agents.find(a => a.id === agentId) : undefined
+
   return (
-    <div className="flex flex-col h-full">
-      {/* Agent 标识栏 */}
-      {agentId && agents.length > 0 && (
-        <div className="px-4 py-2 border-b border-gray-700 flex items-center gap-2">
-          {(() => {
-            const a = agents.find(a => a.id === agentId)
-            if (!a) return null
-            return (
-              <>
-                <span className="text-base">{a.icon}</span>
-                <span className="text-sm font-medium text-gray-300">{a.name}</span>
-                <span className="text-xs text-gray-500">·</span>
-                <span className="text-xs text-gray-500">{a.description}</span>
-              </>
-            )
-          })()}
+    <div className="flex h-full flex-col bg-background">
+      {activeAgent && (
+        <div className="flex items-center gap-2 border-b px-4 py-2">
+          <span className="text-base">{activeAgent.icon}</span>
+          <span className="text-sm font-medium">{activeAgent.name}</span>
+          <span className="text-muted-foreground text-xs">·</span>
+          <span className="text-muted-foreground text-xs">
+            {activeAgent.description}
+          </span>
         </div>
       )}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-8">
-            发送消息开始对话
-          </div>
-        ) : (
-          messages.map((uiMessage, index) => {
-            const isStreamingAssistant =
-              uiMessage.role === 'assistant' &&
-              index === messages.length - 1 &&
-              status === 'streaming'
 
-            const sparkMessage = uiMessageToSparkMessage(uiMessage, {
-              streaming: isStreamingAssistant,
-              agentId,
+      <Conversation className="flex-1">
+        <ConversationContent>
+          {messages.length === 0 ? (
+            <ConversationEmptyState
+              description="输入消息开始与 Spark AI 对话"
+              title="暂无消息"
+            />
+          ) : (
+            messages.map((uiMessage, index) => {
+              const isStreamingAssistant =
+                uiMessage.role === 'assistant' &&
+                index === messages.length - 1 &&
+                status === 'streaming'
+
+              const sparkMessage = uiMessageToSparkMessage(uiMessage, {
+                streaming: isStreamingAssistant,
+                agentId,
+              })
+
+              return (
+                <MessageCard
+                  key={uiMessage.id}
+                  message={sparkMessage}
+                  onAction={handleAction}
+                />
+              )
             })
+          )}
 
-            return (
-              <MessageCard
-                key={uiMessage.id}
-                message={sparkMessage}
-                onAction={handleAction}
-              />
-            )
-          })
-        )}
-
-        {status === 'submitted' && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-              <Loader size={18} className="animate-spin" />
-            </div>
-            <div className="bg-gray-700 px-4 py-2 rounded-2xl rounded-bl-md">
-              <span className="text-gray-400">正在思考...</span>
-            </div>
-          </div>
-        )}
-      </div>
+          {status === 'submitted' && (
+            <Message from="assistant">
+              <MessageContent>
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Loader size={18} />
+                  <span>正在思考...</span>
+                </div>
+              </MessageContent>
+            </Message>
+          )}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
 
       {error && (
-        <div className="mx-4 mb-2 flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
-          <AlertCircle size={16} />
-          <span className="flex-1">{error.message || '请求失败，请重试'}</span>
-          <button
-            type="button"
-            onClick={() => regenerate()}
-            className="rounded px-2 py-1 hover:bg-red-500/20 transition-colors"
-          >
-            重试
-          </button>
-        </div>
+        <Alert className="mx-4 mb-2" variant="destructive">
+          <AlertCircle />
+          <AlertDescription className="flex items-center justify-between gap-2">
+            <span>{error.message || '请求失败，请重试'}</span>
+            <Button
+              size="sm"
+              type="button"
+              variant="outline"
+              onClick={() => regenerate()}
+            >
+              重试
+            </Button>
+          </AlertDescription>
+        </Alert>
       )}
 
-      <div className="p-4 border-t border-gray-700">
-        <div className="flex gap-2">
-          <textarea
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="输入消息..."
-            rows={1}
-            disabled={isBusy || !!error}
-            className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 resize-none disabled:opacity-60"
-            style={{ minHeight: '48px', maxHeight: '120px' }}
-          />
-          {isBusy ? (
-            <button
-              type="button"
-              onClick={() => stop()}
-              className="px-4 py-3 bg-gray-600 hover:bg-gray-500 rounded-xl transition-colors"
-              title="停止生成"
-            >
-              <Square size={18} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={!input.trim() || !!error}
-              className="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl transition-colors"
-            >
-              <Send size={18} />
-            </button>
-          )}
-        </div>
+      <div className="border-t p-4">
+        <PromptInput
+          className="w-full"
+          onSubmit={handleSubmit}
+        >
+          <PromptInputBody>
+            <PromptInputTextarea
+              disabled={!!error}
+              placeholder="输入消息..."
+            />
+          </PromptInputBody>
+          <PromptInputFooter>
+            {isBusy ? (
+              <PromptInputButton
+                aria-label="停止生成"
+                type="button"
+                onClick={() => stop()}
+              >
+                停止
+              </PromptInputButton>
+            ) : (
+              <PromptInputSubmit disabled={!!error} status={status} />
+            )}
+          </PromptInputFooter>
+        </PromptInput>
       </div>
     </div>
   )

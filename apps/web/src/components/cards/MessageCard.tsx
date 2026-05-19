@@ -49,9 +49,15 @@ export function MessageCard({ message, onAction }: MessageCardProps) {
 
   // 单条消息
   if (!Array.isArray(content)) {
-    // 系统消息使用特殊样式
-    if (content.type === MessageContentType.SYSTEM) {
-      return <SystemCard content={content} />
+    if (
+      content.type === MessageContentType.SYSTEM ||
+      content.type === MessageContentType.AGENT_SWITCH
+    ) {
+      return (
+        <div className="flex w-full justify-center px-2">
+          {renderContent(content, onAction)}
+        </div>
+      )
     }
 
     return (

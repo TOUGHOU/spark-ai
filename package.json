@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "turbo dev",
     "dev:web": "turbo dev --filter=@spark/web",
-    "dev:server": "turbo dev --filter=@spark/server",
+    "dev:server": "pnpm --filter @spark/types build && turbo dev --filter=@spark/server",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",

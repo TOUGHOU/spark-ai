@@ -1,40 +1,43 @@
-import { Link, ExternalLink } from 'lucide-react'
+import { ExternalLink, Link } from 'lucide-react'
 import type { ActionContent } from '@spark/types'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface ActionCardProps {
   content: ActionContent
   onAction?: (value: string) => void
 }
 
-export function ActionCard({ content, onAction }: ActionCardProps) {
-  const variantStyles = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-gray-700 hover:bg-gray-600 text-gray-100',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    ghost: 'bg-transparent hover:bg-gray-700/50 text-gray-300 border border-gray-600',
-  }
+const variantStyles = {
+  primary: 'default' as const,
+  secondary: 'secondary' as const,
+  danger: 'destructive' as const,
+  ghost: 'ghost' as const,
+}
 
-  const variant = content.variant || 'secondary'
+export function ActionCard({ content, onAction }: ActionCardProps) {
+  const variant = variantStyles[content.variant || 'secondary']
 
   if (content.actionType === 'link' && content.href) {
     return (
       <a
+        className={cn(buttonVariants({ size: 'sm', variant }), 'inline-flex gap-2')}
         href={content.href}
-        target="_blank"
         rel="noopener noreferrer"
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${variantStyles[variant]}`}
+        target="_blank"
       >
-        <Link size={14} />
+        <Link className="size-3.5" />
         {content.label}
-        <ExternalLink size={12} />
+        <ExternalLink className="size-3" />
       </a>
     )
   }
 
   return (
     <button
+      className={cn(buttonVariants({ size: 'sm', variant }), 'inline-flex gap-2')}
+      type="button"
       onClick={() => onAction?.(content.value || content.label)}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${variantStyles[variant]}`}
     >
       {content.label}
     </button>

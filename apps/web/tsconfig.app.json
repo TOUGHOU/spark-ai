@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/components/ChatWindow.tsx",
+    "src/components/Sidebar.tsx",
+    "src/components/CardsDemo.tsx",
+    "src/components/cards/**/*",
+    "src/hooks/**/*",
+    "src/lib/**/*",
+    "src/stores/**/*"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

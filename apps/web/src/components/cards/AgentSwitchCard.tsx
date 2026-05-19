@@ -1,5 +1,6 @@
 import { ArrowRight, Bot } from 'lucide-react'
 import type { AgentSwitchContent } from '@spark/types'
+import { Badge } from '@/components/ui/badge'
 
 interface AgentSwitchCardProps {
   content: AgentSwitchContent
@@ -7,19 +8,20 @@ interface AgentSwitchCardProps {
 
 export function AgentSwitchCard({ content }: AgentSwitchCardProps) {
   return (
-    <div className="flex items-center justify-center gap-2 text-sm text-gray-400 py-2">
+    <div className="flex flex-wrap items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
       {content.fromAgent && (
-        <>
-          <Bot size={14} />
-          <span>{content.fromAgent}</span>
-        </>
+        <Badge className="gap-1 font-normal" variant="secondary">
+          <Bot className="size-3" />
+          {content.fromAgent}
+        </Badge>
       )}
-      <ArrowRight size={14} className="mx-1" />
-      <Bot size={14} className="text-blue-400" />
-      <span className="text-blue-400">{content.toAgent}</span>
-      
+      <ArrowRight className="size-4 shrink-0" />
+      <Badge className="gap-1 font-normal" variant="default">
+        <Bot className="size-3" />
+        {content.toAgent}
+      </Badge>
       {content.reason && (
-        <span className="text-gray-500">({content.reason})</span>
+        <span className="text-muted-foreground text-xs">({content.reason})</span>
       )}
     </div>
   )

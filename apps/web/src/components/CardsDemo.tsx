@@ -1,5 +1,11 @@
 import { MessageContentType, type Message } from '@spark/types'
 import { useState } from 'react'
+import {
+  Conversation,
+  ConversationContent,
+} from '@/components/ai-elements/conversation'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { MessageCard } from '../components/cards'
 
 /** 生成示例消息 */
@@ -193,42 +199,39 @@ export function CardDemo() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-900">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-700">
-        <h1 className="text-2xl font-bold text-white mb-4">📋 消息卡片样式展示</h1>
-
-        {/* 筛选器 */}
+    <div className="flex h-full flex-col bg-background">
+      <div className="border-b p-4">
+        <h1 className="mb-4 text-2xl font-bold">📋 消息卡片样式展示</h1>
         <div className="flex flex-wrap gap-2">
           {cardTypes.map(type => (
-            <button
+            <Button
               key={type.value}
+              size="sm"
+              type="button"
+              variant={selectedType === type.value ? 'default' : 'secondary'}
+              className={cn('rounded-full')}
               onClick={() => setSelectedType(type.value)}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${selectedType === type.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
             >
               {type.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
-      {/* 消息列表 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {filteredMessages.map(msg => (
-          <MessageCard
-            key={msg.id}
-            message={msg}
-            onAction={handleAction}
-          />
-        ))}
-      </div>
+      <Conversation className="flex-1">
+        <ConversationContent className="gap-6">
+          {filteredMessages.map(msg => (
+            <MessageCard
+              key={msg.id}
+              message={msg}
+              onAction={handleAction}
+            />
+          ))}
+        </ConversationContent>
+      </Conversation>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-700 text-center text-sm text-gray-500">
-        Spark AI - 消息卡片组件库 v0.1.0
+      <div className="border-t p-4 text-center text-muted-foreground text-sm">
+        Spark AI · AI Elements 组件展示
       </div>
     </div>
   )
