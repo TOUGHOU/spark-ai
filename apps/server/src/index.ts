@@ -73,7 +73,19 @@ app.post('/api/chat/stream', async (c) => {
     
     // 3. 流式生成
     console.log(`[Stream] Using agent: ${agentId}`)
-    const stream = await agent.stream(message, {
+    
+    // 支持多轮对话：构建 CoreMessage[]
+    const coreMessages = body.messages
+      ? body.messages.map((msg: any) => ({
+          role: msg.role as 'user' | 'assistant' | 'system',
+          content: msg.parts
+            ?.filter((p: any) => p.type === 'text')
+            .map((p: any) => p.text)
+            .join('') ?? msg.content ?? '',
+        }))
+      : [{ role: 'user' as const, content: message }]
+    
+    const stream = await agent.stream(coreMessages, {
       threadId: threadId || crypto.randomUUID(),
     })
     

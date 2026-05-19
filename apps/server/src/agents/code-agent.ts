@@ -68,7 +68,7 @@ export const codeAgentConfig = {
   keywords: ['代码', '编程', '函数', 'bug', 'debug', '算法', 'typescript', 'javascript', 'python'],
   intentCategories: ['code', 'programming', 'development'],
   priority: 10,
-  model: resolveDeepSeekModel(DEEPSEEK_REASONER),
+  model: DEEPSEEK_REASONER,
   systemPrompt: `你是一个代码专家。专长：代码编写和调试、架构设计建议、代码审查和优化。`,
   tools: ['execute-code', 'format-code'],
   memory: true,

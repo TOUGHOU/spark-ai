@@ -20,7 +20,7 @@ export const dataAgent = new Agent({
 - 提供 SQL 查询语句
 - 给出可视化图表建议
 - 解释数据背后的含义`,
-  model: resolveDeepSeekModel(DEEPSEEK_REASONER),
+  model: DEEPSEEK_REASONER,
   tools: {
     // SQL 查询生成工具
     generateSQL: createTool({
@@ -74,7 +74,7 @@ export const dataAgentConfig = {
   keywords: ['数据', '分析', 'SQL', '统计', '图表', '可视化', '指标'],
   intentCategories: ['data', 'analytics', 'sql'],
   priority: 8,
-  model: resolveDeepSeekModel(DEEPSEEK_REASONER),
+  model: DEEPSEEK_REASONER,
   systemPrompt: `你是一个数据分析师。专长：数据分析和统计、SQL 查询编写、数据可视化建议。`,
   tools: ['generate-sql', 'analyze-data'],
   memory: true,

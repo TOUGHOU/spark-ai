@@ -9,13 +9,24 @@ export interface Thread {
   agentId?: string
 }
 
+interface AgentInfo {
+  id: string
+  name: string
+  description: string
+  icon: string
+  color: string
+}
+
 interface ChatState {
   threads: Thread[]
   currentThreadId: string | null
+  agents: AgentInfo[]
+  defaultAgentId: string | null
 
   // Actions
   createThread: (agentId?: string) => void
   selectThread: (id: string) => void
+  setAgents: (agents: AgentInfo[], defaultId: string) => void
   addMessage: (content: MessageContent, role: 'user' | 'assistant' | 'system') => void
   updateMessage: (threadId: string, messageId: string, content: Partial<Message>) => void
   updateThreadTitle: (id: string, title: string) => void
@@ -30,6 +41,12 @@ export const selectCurrentThread = (state: ChatState): Thread | null =>
 export const useChatStore = create<ChatState>((set, get) => ({
   threads: [],
   currentThreadId: null,
+  agents: [],
+  defaultAgentId: null,
+
+  setAgents: (agents, defaultId) => {
+    set({ agents, defaultAgentId: defaultId })
+  },
 
   createThread: (agentId) => {
     const newThread: Thread = {

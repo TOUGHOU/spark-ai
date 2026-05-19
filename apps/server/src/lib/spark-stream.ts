@@ -8,7 +8,7 @@ import { MessageContentType, type AgentSwitchContent, type MessageContent } from
 export const SPARK_CARD_DATA_TYPE = 'data-spark-card' as const
 
 export function writeSparkCard(
-  writer: { write: (part: Record<string, unknown>) => void },
+  writer: { write: (part: unknown) => void },
   content: MessageContent,
   id?: string,
 ) {

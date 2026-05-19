@@ -9,6 +9,7 @@ export function ChatWindow() {
   const [input, setInput] = useState('')
   const currentThread = useChatStore(selectCurrentThread)
   const updateThreadTitle = useChatStore(s => s.updateThreadTitle)
+  const agents = useChatStore(s => s.agents)
   const threadId = currentThread?.id ?? null
   const agentId = currentThread?.agentId
 
@@ -56,6 +57,23 @@ export function ChatWindow() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Agent 标识栏 */}
+      {agentId && agents.length > 0 && (
+        <div className="px-4 py-2 border-b border-gray-700 flex items-center gap-2">
+          {(() => {
+            const a = agents.find(a => a.id === agentId)
+            if (!a) return null
+            return (
+              <>
+                <span className="text-base">{a.icon}</span>
+                <span className="text-sm font-medium text-gray-300">{a.name}</span>
+                <span className="text-xs text-gray-500">·</span>
+                <span className="text-xs text-gray-500">{a.description}</span>
+              </>
+            )
+          })()}
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">

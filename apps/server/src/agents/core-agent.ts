@@ -15,7 +15,7 @@ export const coreAgent = new Agent({
 - 如果问题超出了你的能力范围，建议用户切换到合适的专业 Agent
 
 你可以通过工具调用来获取实时信息或执行特定任务。`,
-  model: resolveDeepSeekModel(DEEPSEEK_CHAT),
+  model: DEEPSEEK_CHAT,
   tools: {
     // 示例工具：获取当前时间
     getCurrentTime: createTool({

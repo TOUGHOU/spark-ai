@@ -20,6 +20,29 @@ function extractTextFromMessage(message: UIMessage): string {
     .join('')
 }
 
+/** 将前端 UIMessage[] 转换为 Mastra Agent 可理解的 CoreMessage 格式 */
+interface SimpleMessage {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+}
+
+function uiMessagesToCoreMessages(messages: UIMessage[]): SimpleMessage[] {
+  return messages.map(msg => {
+    const text = msg.parts
+      ?.filter((part): part is { type: 'text'; text: string } => part.type === 'text')
+      .map(part => part.text)
+      .join('') ?? ''
+
+    if (msg.role === 'user') {
+      return { role: 'user' as const, content: text }
+    }
+    if (msg.role === 'assistant') {
+      return { role: 'assistant' as const, content: text }
+    }
+    return { role: 'system' as const, content: text }
+  })
+}
+
 export async function handleChatRequest(c: Context) {
   try {
     const body = await c.req.json()
@@ -80,7 +103,7 @@ export async function handleChatRequest(c: Context) {
       execute: async ({ writer }) => {
         if (shouldShowAgentSwitch) {
           writeSparkCard(
-            writer as { write: (part: Record<string, unknown>) => void },
+            writer as unknown as { write: (part: unknown) => void },
             buildAgentSwitchCard({
               toAgentId: agentId,
               toAgentName: toConfig?.name,
@@ -94,7 +117,9 @@ export async function handleChatRequest(c: Context) {
         const textId = crypto.randomUUID()
         writer.write({ type: 'text-start', id: textId })
 
-        const result = await agent.stream(messageText)
+        // 传入完整对话历史，支持多轮对话
+        const coreMessages = uiMessagesToCoreMessages(messages)
+        const result = await agent.stream(coreMessages)
 
         for await (const chunk of result.textStream) {
           writer.write({

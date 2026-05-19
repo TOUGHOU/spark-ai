@@ -14,8 +14,6 @@
     "@ai-sdk/react": "^3.0.186",
     "@spark/types": "workspace:*",
     "@tanstack/react-query": "^5.60.0",
-    "@trpc/client": "^11.0.0",
-    "@trpc/tanstack-react-query": "^11.0.0",
     "ai": "^6.0.184",
     "lucide-react": "^0.468.0",
     "react": "^18.3.0",

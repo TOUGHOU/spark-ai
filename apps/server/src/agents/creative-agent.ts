@@ -19,7 +19,7 @@ export const creativeAgent = new Agent({
 - 提供多样化的想法
 - 激发用户的创造力
 - 使用生动、有趣的语言`,
-  model: resolveDeepSeekModel(DEEPSEEK_CHAT),
+  model: DEEPSEEK_CHAT,
   tools: {
     // 创意扩展工具
     expandIdea: createTool({
@@ -73,7 +73,7 @@ export const creativeAgentConfig = {
   keywords: ['创意', '文案', '故事', '写作', '广告', '营销', '策划'],
   intentCategories: ['creative', 'writing', 'marketing'],
   priority: 5,
-  model: resolveDeepSeekModel(DEEPSEEK_CHAT),
+  model: DEEPSEEK_CHAT,
   systemPrompt: `你是一个创意写作助手。专长：文案创作、故事编写、营销创意、头脑风暴。`,
   tools: ['expand-idea', 'polish-copy'],
   memory: true,
