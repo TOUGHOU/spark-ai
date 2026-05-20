@@ -8,6 +8,10 @@ import { mastra } from './mastra/index.js'
 import { agentRegistry } from './registry/agent-registry.js'
 import { createAgentRouter } from './registry/agent-router.js'
 import { handleChatRequest } from './routes/chat.route.js'
+import {
+  handleDouyinDownload,
+  handleDouyinParse,
+} from './routes/douyin.route.js'
 
 const app = new Hono()
 
@@ -43,6 +47,10 @@ app.get('/api/agents', c => {
     defaultAgentId: defaultId,
   })
 })
+
+// 抖音视频解析与下载
+app.post('/api/douyin/parse', handleDouyinParse)
+app.post('/api/douyin/download', handleDouyinDownload)
 
 // 对话接口（AI SDK 流式，供 @ai-sdk/react useChat 使用）
 app.post('/api/chat', handleChatRequest)

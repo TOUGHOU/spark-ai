@@ -16,6 +16,7 @@
     "@mastra/hono": "latest",
     "@spark/types": "workspace:*",
     "ai": "^6.0.184",
+    "axios": "^1.16.1",
     "hono": "^4.6.0",
     "zod": "^3.24.0"
   },

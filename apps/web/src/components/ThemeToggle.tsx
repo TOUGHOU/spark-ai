@@ -31,15 +31,8 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button
-          aria-label="切换主题"
-          className="w-full justify-start gap-2"
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
+        <Button variant="ghost" size="icon">
           <ActiveIcon className="size-4" />
-          <span>主题</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-40">

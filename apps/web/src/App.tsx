@@ -3,31 +3,34 @@ import { selectCurrentThread, useChatStore } from './stores/chatStore'
 import { ChatWindow } from './components/ChatWindow'
 import { Sidebar } from './components/Sidebar'
 import { CardDemo } from './components/CardsDemo'
+import { DouyinDownloadPage } from './pages/DouyinDownloadPage'
 import { Button } from '@/components/ui/button'
+
+type AppView = 'chat' | 'demo' | 'douyin'
 
 function App() {
   const currentThread = useChatStore(selectCurrentThread)
-  const [showDemo, setShowDemo] = useState(false)
+  const [view, setView] = useState<AppView>('chat')
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'd') {
         e.preventDefault()
-        setShowDemo(prev => !prev)
+        setView(prev => (prev === 'demo' ? 'chat' : 'demo'))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  if (showDemo) {
+  if (view === 'demo') {
     return (
       <div className="h-full bg-background text-foreground">
         <Button
           className="fixed top-4 right-4 z-50"
           type="button"
           variant="secondary"
-          onClick={() => setShowDemo(false)}
+          onClick={() => setView('chat')}
         >
           ← 返回聊天
         </Button>
@@ -38,9 +41,11 @@ function App() {
 
   return (
     <div className="flex h-full bg-background text-foreground">
-      <Sidebar />
+      <Sidebar activeView={view} onNavigate={setView} />
       <main className="flex flex-1 flex-col">
-        {currentThread ? (
+        {view === 'douyin' ? (
+          <DouyinDownloadPage />
+        ) : currentThread ? (
           <ChatWindow />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
@@ -56,7 +61,14 @@ function App() {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setShowDemo(true)}
+                onClick={() => setView('douyin')}
+              >
+                抖音视频下载
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setView('demo')}
               >
                 查看卡片样式
               </Button>

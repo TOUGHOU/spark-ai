@@ -1,11 +1,18 @@
 import { useChatStore } from '../stores/chatStore'
-import { Plus, MessageSquare, Trash2, Bot } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Bot, Video } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-export function Sidebar() {
+type AppView = 'chat' | 'demo' | 'douyin'
+
+interface SidebarProps {
+  activeView?: AppView
+  onNavigate?: (view: AppView) => void
+}
+
+export function Sidebar({ activeView = 'chat', onNavigate }: SidebarProps) {
   const {
     threads,
     currentThreadId,
@@ -49,10 +56,22 @@ export function Sidebar() {
 
   return (
     <aside className="flex w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="border-b border-sidebar-border p-4">
+      <div className="space-y-2 border-b border-sidebar-border p-4">
         <Button className="w-full gap-2" type="button" onClick={() => handleNewThread()}>
           <Plus className="size-4" />
           新对话
+        </Button>
+        <Button
+          className={cn(
+            'w-full gap-2',
+            activeView === 'douyin' && 'bg-sidebar-accent text-sidebar-accent-foreground',
+          )}
+          type="button"
+          variant="ghost"
+          onClick={() => onNavigate?.('douyin')}
+        >
+          <Video className="size-4" />
+          抖音下载
         </Button>
       </div>
 
@@ -107,7 +126,10 @@ export function Sidebar() {
               >
                 <button
                   type="button"
-                  onClick={() => selectThread(thread.id)}
+                  onClick={() => {
+                    onNavigate?.('chat')
+                    selectThread(thread.id)
+                  }}
                   className={cn(
                     'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors',
                     isActive
@@ -146,7 +168,7 @@ export function Sidebar() {
         )}
       </div>
 
-      <div className="space-y-2 border-t border-sidebar-border p-4 flex flex-col items-center justify-center">
+      <div className="border-t border-sidebar-border p-2 flex items-center justify-center gap-2">
         <ThemeToggle />
         <p className="text-muted-foreground text-xs">Spark AI v0.1.0</p>
       </div>
