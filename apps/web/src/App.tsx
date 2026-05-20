@@ -22,7 +22,7 @@ function App() {
 
   if (showDemo) {
     return (
-      <div className="dark h-full bg-background text-foreground">
+      <div className="h-full bg-background text-foreground">
         <Button
           className="fixed top-4 right-4 z-50"
           type="button"
@@ -37,7 +37,7 @@ function App() {
   }
 
   return (
-    <div className="dark flex h-full bg-background text-foreground">
+    <div className="flex h-full bg-background text-foreground">
       <Sidebar />
       <main className="flex flex-1 flex-col">
         {currentThread ? (

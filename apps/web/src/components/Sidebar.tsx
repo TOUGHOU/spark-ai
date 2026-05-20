@@ -1,6 +1,7 @@
 import { useChatStore } from '../stores/chatStore'
 import { Plus, MessageSquare, Trash2, Bot } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -145,8 +146,9 @@ export function Sidebar() {
         )}
       </div>
 
-      <div className="border-t border-sidebar-border p-4 text-muted-foreground text-xs">
-        Spark AI v0.1.0
+      <div className="space-y-2 border-t border-sidebar-border p-4 flex flex-col items-center justify-center">
+        <ThemeToggle />
+        <p className="text-muted-foreground text-xs">Spark AI v0.1.0</p>
       </div>
     </aside>
   )

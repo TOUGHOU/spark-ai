@@ -9,7 +9,9 @@
     "src/components/cards/**/*",
     "src/hooks/**/*",
     "src/lib/**/*",
-    "src/stores/**/*"
+    "src/stores/**/*",
+    "src/components/ThemeProvider.tsx",
+    "src/components/ThemeToggle.tsx"
   ],
   "exclude": ["node_modules", "dist"]
 }
