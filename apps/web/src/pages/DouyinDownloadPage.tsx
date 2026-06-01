@@ -1,20 +1,16 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Download, Link2, Loader2, Video } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { cn } from '@/lib/utils'
 
 interface ParsedVideo {
   videoId: string
   title: string
+  previewUrl: string
 }
 
 type PageStatus = 'idle' | 'parsing' | 'parsed' | 'downloading' | 'done' | 'error'
@@ -23,17 +19,15 @@ export function DouyinDownloadPage() {
   const [shareLink, setShareLink] = useState('')
   const [parsed, setParsed] = useState<ParsedVideo | null>(null)
   const [status, setStatus] = useState<PageStatus>('idle')
-  const [error, setError] = useState<string | null>(null)
   const [downloadProgress, setDownloadProgress] = useState(0)
 
   const handleParse = async () => {
     const link = shareLink.trim()
     if (!link) {
-      setError('请输入抖音分享链接')
+      toast.error('请输入抖音分享链接')
       return
     }
 
-    setError(null)
     setParsed(null)
     setStatus('parsing')
 
@@ -49,11 +43,15 @@ export function DouyinDownloadPage() {
         throw new Error(data.error || '解析失败')
       }
 
-      setParsed({ videoId: data.videoId, title: data.title })
+      setParsed({
+        videoId: data.videoId,
+        title: data.title,
+        previewUrl: data.previewUrl,
+      })
       setStatus('parsed')
     } catch (err) {
       setStatus('error')
-      setError(err instanceof Error ? err.message : '解析失败')
+      toast.error(err instanceof Error ? err.message : '解析失败')
     }
   }
 
@@ -61,7 +59,6 @@ export function DouyinDownloadPage() {
     const link = shareLink.trim()
     if (!link) return
 
-    setError(null)
     setDownloadProgress(0)
     setStatus('downloading')
 
@@ -85,9 +82,7 @@ export function DouyinDownloadPage() {
         : `${parsed?.videoId || 'douyin'}.mp4`
 
       const reader = res.body?.getReader()
-      if (!reader) {
-        throw new Error('无法读取视频流')
-      }
+      if (!reader) throw new Error('无法读取视频流')
 
       const chunks: Uint8Array[] = []
       let received = 0
@@ -114,142 +109,127 @@ export function DouyinDownloadPage() {
 
       setDownloadProgress(100)
       setStatus('done')
+      toast.success('已保存到下载目录')
     } catch (err) {
       setStatus('error')
-      setError(err instanceof Error ? err.message : '下载失败')
+      toast.error(err instanceof Error ? err.message : '下载失败')
     }
   }
 
   const isBusy = status === 'parsing' || status === 'downloading'
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6">
-      <div className="w-full max-w-lg space-y-6">
-        <div className="text-center space-y-2">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Video className="size-6" />
+    <div className="flex min-h-0 flex-1 flex-col p-4">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-lg flex-1 flex-col gap-3">
+        <div className="flex shrink-0 items-center gap-2 px-0.5">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Video className="size-4" />
           </div>
-          <h1 className="text-2xl font-bold">抖音视频下载</h1>
-          <p className="text-muted-foreground text-sm">
-            粘贴分享链接，解析后下载无水印视频到本地
-          </p>
+          <div className="min-w-0">
+            <h1 className="text-base font-semibold leading-tight">抖音视频下载</h1>
+            <p className="text-muted-foreground text-xs leading-tight">
+              粘贴分享链接，解析预览后下载
+            </p>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">分享链接</CardTitle>
-            <CardDescription>
-              支持完整分享文案，会自动提取其中的链接
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="relative">
-              <Link2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                placeholder="粘贴抖音分享链接或分享文案..."
-                value={shareLink}
-                disabled={isBusy}
-                onChange={e => {
-                  setShareLink(e.target.value)
-                  if (status !== 'idle' && status !== 'error') {
-                    setStatus('idle')
-                    setParsed(null)
-                  }
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !isBusy) handleParse()
-                }}
-              />
-            </div>
-
-            <div className="flex gap-2">
+        <Card
+          className={cn(
+            'flex min-h-0 flex-col py-0',
+            parsed && 'min-h-0 flex-1',
+          )}
+        >
+          <CardContent
+            className={cn(
+              'flex flex-col gap-3 p-3',
+              parsed && 'min-h-0 flex-1',
+            )}
+          >
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="relative min-w-0 flex-1">
+                <Link2 className="absolute left-2.5 top-1/2 z-10 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="h-9 w-full pl-8 text-sm"
+                  placeholder="粘贴分享链接或分享文案"
+                  value={shareLink}
+                  disabled={isBusy}
+                  onChange={e => {
+                    setShareLink(e.target.value)
+                    if (status !== 'idle' && status !== 'error') {
+                      setStatus('idle')
+                      setParsed(null)
+                    }
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !isBusy) handleParse()
+                  }}
+                />
+              </div>
               <Button
-                className="flex-1"
+                className="h-9 shrink-0 px-3 text-sm"
+                size="sm"
                 type="button"
                 disabled={isBusy || !shareLink.trim()}
                 onClick={handleParse}
               >
                 {status === 'parsing' ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    解析中...
-                  </>
+                  <Loader2 className="size-3.5 animate-spin" />
                 ) : (
-                  '解析视频'
+                  '解析'
                 )}
               </Button>
               <Button
+                className="h-9 shrink-0 gap-1.5 px-3 text-sm"
+                size="sm"
                 type="button"
                 variant="secondary"
                 disabled={isBusy || !shareLink.trim()}
                 onClick={handleDownload}
               >
                 {status === 'downloading' ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    下载中...
-                  </>
+                  <Loader2 className="size-3.5 animate-spin" />
                 ) : (
                   <>
-                    <Download className="size-4" />
-                    直接下载
+                    <Download className="size-3.5" />
+                    下载
                   </>
                 )}
               </Button>
             </div>
 
             {status === 'downloading' && (
-              <div className="space-y-2">
-                <Progress value={downloadProgress} />
-                <p className="text-center text-muted-foreground text-xs">
+              <div className="shrink-0 space-y-1">
+                <Progress className="h-1" value={downloadProgress} />
+                <p className="text-muted-foreground text-center text-[11px]">
                   {downloadProgress > 0
-                    ? `下载进度 ${downloadProgress}%`
-                    : '正在连接服务器...'}
+                    ? `${downloadProgress}%`
+                    : '连接中…'}
                 </p>
+              </div>
+            )}
+
+            {parsed && (
+              <div className="flex min-h-0 flex-1 flex-col gap-2 border-t pt-3">
+                <p
+                  className="shrink-0 text-sm font-medium"
+                  title={parsed.title}
+                >
+                  {parsed.title}
+                </p>
+                <div className="flex min-h-0 flex-1 overflow-hidden rounded-md border bg-black">
+                  <video
+                    key={parsed.previewUrl}
+                    className="size-full object-contain"
+                    src={parsed.previewUrl}
+                    controls
+                    playsInline
+                    preload="metadata"
+                  />
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
-
-        {parsed && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">视频信息</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>
-                <span className="text-muted-foreground">标题：</span>
-                {parsed.title}
-              </p>
-              <p>
-                <span className="text-muted-foreground">视频 ID：</span>
-                {parsed.videoId}
-              </p>
-              {status === 'parsed' && (
-                <Button
-                  className="mt-2 w-full gap-2"
-                  type="button"
-                  onClick={handleDownload}
-                >
-                  <Download className="size-4" />
-                  下载到本地
-                </Button>
-              )}
-              {status === 'done' && (
-                <p className="text-green-600 dark:text-green-400 text-xs">
-                  下载完成，请查看浏览器下载目录
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
       </div>
     </div>
   )

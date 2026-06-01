@@ -11,6 +11,7 @@ import { handleChatRequest } from './routes/chat.route.js'
 import {
   handleDouyinDownload,
   handleDouyinParse,
+  handleDouyinPreview,
 } from './routes/douyin.route.js'
 
 const app = new Hono()
@@ -48,8 +49,9 @@ app.get('/api/agents', c => {
   })
 })
 
-// 抖音视频解析与下载
+// 抖音视频解析、预览与下载
 app.post('/api/douyin/parse', handleDouyinParse)
+app.get('/api/douyin/preview', handleDouyinPreview)
 app.post('/api/douyin/download', handleDouyinDownload)
 
 // 对话接口（AI SDK 流式，供 @ai-sdk/react useChat 使用）
