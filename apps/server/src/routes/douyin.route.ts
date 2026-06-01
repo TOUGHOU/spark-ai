@@ -58,7 +58,7 @@ export async function handleDouyinParse(c: Context) {
   }
 }
 
-export async function handleDouyinPreview(c: Context) {
+export async function handleDouyinPreview(c: Context): Promise<Response> {
   try {
     const shareLink = c.req.query('shareLink')?.trim()
 
@@ -77,7 +77,7 @@ export async function handleDouyinPreview(c: Context) {
   }
 }
 
-export async function handleDouyinDownload(c: Context) {
+export async function handleDouyinDownload(c: Context): Promise<Response> {
   try {
     const body = await c.req.json<{ shareLink?: string }>()
     const shareLink = body.shareLink?.trim()

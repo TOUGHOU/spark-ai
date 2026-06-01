@@ -94,10 +94,8 @@ app.post('/api/chat/stream', async (c) => {
             .join('') ?? msg.content ?? '',
         }))
       : [{ role: 'user' as const, content: message }]
-    
-    const stream = await agent.stream(coreMessages, {
-      threadId: threadId || crypto.randomUUID(),
-    })
+
+    const stream = await agent.stream(coreMessages)
     
     // 4. 返回流式响应
     // 注意：实际生产环境需要使用正确的 SSE 格式
@@ -125,7 +123,7 @@ if (!process.env.DEEPSEEK_API_KEY) {
   console.warn('⚠️  DEEPSEEK_API_KEY 未设置，请在 apps/server/.env.local 中配置')
 }
 
-const port = Number(process.env.PORT) || 9000
+const port = Number(process.env.PORT)
 console.log(`🚀 Server running at http://localhost:${port}`)
 console.log(`📋 Available agents: ${agentRegistry.listAgents().map(a => a.id).join(', ')}`)
 
