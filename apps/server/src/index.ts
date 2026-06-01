@@ -125,7 +125,7 @@ if (!process.env.DEEPSEEK_API_KEY) {
   console.warn('⚠️  DEEPSEEK_API_KEY 未设置，请在 apps/server/.env.local 中配置')
 }
 
-const port = Number(process.env.PORT) || 3001
+const port = Number(process.env.PORT) || 9000
 console.log(`🚀 Server running at http://localhost:${port}`)
 console.log(`📋 Available agents: ${agentRegistry.listAgents().map(a => a.id).join(', ')}`)
 

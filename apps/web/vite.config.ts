@@ -21,11 +21,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/trpc': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:9000',
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:9000',
         changeOrigin: true,
       },
     },

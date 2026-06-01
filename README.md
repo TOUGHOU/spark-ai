@@ -56,7 +56,7 @@ pnpm typecheck
 ## 端口
 
 - 前端：http://localhost:5173
-- 后端：http://localhost:3001
+- 后端：http://localhost:9000
 
 ## TODO
 

@@ -4,10 +4,13 @@
   "description": "AI星火 - Monorepo 全栈 AI Agent 应用",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "pnpm --filter @spark/types build && turbo dev --filter=@spark/web --filter=@spark/server",
     "dev:web": "turbo dev --filter=@spark/web",
     "dev:server": "pnpm --filter @spark/types build && turbo dev --filter=@spark/server",
     "build": "turbo build",
+    "start": "turbo start --filter=@spark/web --filter=@spark/server",
+    "start:web": "turbo start --filter=@spark/web",
+    "start:server": "turbo start --filter=@spark/server",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rm -rf node_modules"
